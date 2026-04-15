@@ -3,222 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KurumiApp Panel</title>
+    <title>Kurumi H-Panel</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0f0f13;
-            --panel-bg: #1c1c24;
-            --primary-color: #e62e4d;
-            --text-color: #ffffff;
-            --text-muted: #a0a0b0;
-            --vip-color: #ffd700;
+            --bg-color: #0b0014;
+            --panel-bg: #160224;
+            --accent: #ff007f;
+            --accent-glow: rgba(255, 0, 127, 0.6);
+            --text: #ffffff;
+            --vip: #ffd700;
+            --vip-glow: rgba(255, 215, 0, 0.6);
         }
 
         body {
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, sans-serif;
             overflow-x: hidden;
+            padding-bottom: 40px;
         }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            padding: 15px 0;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px var(--accent-glow);
+            border-radius: 0 0 20px 20px;
+            background: linear-gradient(180deg, rgba(255,0,127,0.1) 0%, transparent 100%);
         }
 
         h1 {
-            color: var(--primary-color);
-            margin: 0 0 5px 0;
-            font-size: 28px;
-            text-transform: uppercase;
+            margin: 0;
+            font-size: 24px;
             letter-spacing: 2px;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
         }
 
         #vip-badge {
-            font-size: 14px;
             font-weight: bold;
-            min-height: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-top: 5px;
+            font-size: 12px;
+            height: 15px;
         }
 
-        .stats-grid {
+        /* Stats Grid */
+        .stats-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
-        .stat-card {
-            background-color: var(--panel-bg);
-            border-radius: 15px;
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 0, 127, 0.3);
+            border-radius: 12px;
             padding: 15px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(230, 46, 77, 0.1);
-            transition: transform 0.2s;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-card:active {
-            transform: scale(0.95);
-        }
+        .full { grid-column: span 2; }
 
-        .stat-card.full-width {
-            grid-column: span 2;
-        }
-
-        .stat-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 12px;
-            color: var(--text-muted);
+        .label {
+            display: block;
+            font-size: 11px;
+            color: var(--accent);
             text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-card p {
-            margin: 0;
-            font-size: 20px;
             font-weight: bold;
-            color: var(--text-color);
-        }
-
-        .harem-section h2 {
-            font-size: 18px;
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--panel-bg);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        .harem-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-        }
-
-        .waifu-card {
-            background-color: var(--panel-bg);
-            border-radius: 12px;
-            padding: 15px 10px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .waifu-icon {
-            font-size: 24px;
             margin-bottom: 8px;
         }
 
-        .waifu-card p {
-            margin: 0;
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--text-color);
-            word-break: break-word;
+        .value {
+            font-size: 22px;
+            font-weight: 900;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
         }
 
-        .empty-harem {
-            grid-column: 1 / -1;
-            text-align: center;
-            color: var(--text-muted);
-            font-style: italic;
+        /* Barra de Progreso */
+        .progress-bg {
+            background: #000;
+            border-radius: 10px;
+            height: 12px;
+            width: 100%;
+            margin-top: 10px;
+            border: 1px solid rgba(255,0,127,0.3);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #ff007f, #ff4da6);
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease-in-out;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Banner de Suscripción VIP */
+        .promo-box {
+            background: linear-gradient(135deg, #2a0800 0%, #1a0000 100%);
+            border: 2px solid var(--vip);
+            border-radius: 15px;
             padding: 20px;
-            background-color: var(--panel-bg);
-            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 0 20px var(--vip-glow);
+            animation: pulse 2s infinite;
+        }
+
+        .promo-box h3 {
+            color: var(--vip);
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            text-shadow: 0 0 5px var(--vip-glow);
+        }
+
+        .promo-box ul {
+            text-align: left;
+            font-size: 13px;
+            color: #ddd;
+            padding-left: 20px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .btn-buy {
+            background: linear-gradient(90deg, #ffaa00, #ffea00);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-buy:active { transform: scale(0.95); }
+
+        /* Harem Gallery */
+        .harem-title {
+            font-size: 16px;
+            color: var(--accent);
+            margin: 0 0 15px 0;
+            text-transform: uppercase;
+            font-weight: bold;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 5px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+            gap: 10px;
+        }
+
+        .waifu-item {
+            background: #230235;
+            border-radius: 10px;
+            padding: 15px 5px;
+            text-align: center;
+            border: 1px solid rgba(255, 0, 127, 0.2);
+            transition: all 0.2s;
+        }
+
+        .waifu-item:active { background: var(--accent); transform: scale(0.95); }
+        .waifu-item span { font-size: 10px; font-weight: bold; display: block; margin-top: 8px; }
+        .emoji { font-size: 28px; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px var(--vip-glow); }
+            50% { box-shadow: 0 0 25px var(--vip-glow); }
+            100% { box-shadow: 0 0 10px var(--vip-glow); }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>KurumiApp 😈</h1>
+        <h1>KURUMI H-PANEL 😈</h1>
         <div id="vip-badge"></div>
     </header>
 
-    <div class="stats-grid">
-        <div class="stat-card full-width">
-            <h3>👑 Rango Actual</h3>
-            <p id="titulo-display">Cargando...</p>
+    <div class="stats-container">
+        <div class="card full">
+            <span class="label">👑 Estatus en la Sociedad</span>
+            <div class="value" id="titulo">Cargando...</div>
         </div>
-        <div class="stat-card">
-            <h3>💰 Monedas</h3>
-            <p id="monedas-display">0</p>
+        <div class="card">
+            <span class="label">💰 Capital Lewd</span>
+            <div class="value" id="monedas">0</div>
         </div>
-        <div class="stat-card">
-            <h3>💖 Afinidad</h3>
-            <p id="afinidad-display">0%</p>
+        <div class="card">
+            <span class="label">🌡️ Excitación</span>
+            <div class="value" id="afinidad-text">0%</div>
+            <div class="progress-bg">
+                <div class="progress-fill" id="afinidad-bar"></div>
+            </div>
         </div>
     </div>
 
-    <section class="harem-section">
-        <h2>📸 Tu Harem Privado</h2>
-        <div id="harem-gallery" class="harem-gallery">
-            </div>
-    </section>
+    <div id="promo-container"></div>
+
+    <div class="harem-title">📸 Tu Sótano (Harem)</div>
+    <div id="gallery" class="gallery"></div>
 
     <script>
-        // 1. Expandimos la App para que ocupe toda la pantalla en Telegram
-        window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.ready();
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
 
-        // 2. Extraemos los parámetros de la URL enviados por bot.py
-        const urlParams = new URLSearchParams(window.location.search);
+        // Extraer datos de la URL
+        const params = new URLSearchParams(window.location.search);
+        const coins = params.get('coins') || '0';
+        const afinidad = parseInt(params.get('afinidad')) || 0;
+        const titulo = params.get('titulo') ? decodeURIComponent(params.get('titulo')) : 'Solitario';
+        const isVip = params.get('vip') === '1';
+        const waifusRaw = params.get('waifus') ? decodeURIComponent(params.get('waifus')) : '';
+
+        // Renderizar Stats Básicas
+        document.getElementById('monedas').innerText = parseInt(coins).toLocaleString();
+        document.getElementById('titulo').innerText = titulo;
         
-        // Asignamos valores por defecto en caso de que algo llegue vacío
-        const coins = urlParams.get('coins') || '0';
-        const afinidad = urlParams.get('afinidad') || '0';
-        const titulo = urlParams.get('titulo') ? decodeURIComponent(urlParams.get('titulo')) : 'Desconocido';
-        const isVip = urlParams.get('vip') === '1';
-        const waifusRaw = urlParams.get('waifus') ? decodeURIComponent(urlParams.get('waifus')) : '';
+        // Renderizar Barra de Afinidad animada
+        document.getElementById('afinidad-text').innerText = afinidad + '%';
+        setTimeout(() => {
+            document.getElementById('afinidad-bar').style.width = afinidad + '%';
+        }, 300);
 
-        // Convertimos el string separado por comas en un Array (lista)
-        const waifusArray = waifusRaw ? waifusRaw.split(',') : [];
-
-        // 3. Renderizamos la información en el HTML
-        document.getElementById('monedas-display').innerText = parseInt(coins).toLocaleString();
-        document.getElementById('afinidad-display').innerText = afinidad + '%';
-        document.getElementById('titulo-display').innerText = titulo;
-
-        // Mostrar Medalla VIP
+        // Lógica de Renderizado VIP (El Enganche)
+        const promoContainer = document.getElementById('promo-container');
+        
         if (isVip) {
-            const badge = document.getElementById('vip-badge');
-            badge.innerText = "🌟 USUARIO PREMIUM";
-            badge.style.color = "var(--vip-color)";
-            badge.style.textShadow = "0 0 10px rgba(255, 215, 0, 0.5)";
-        }
-
-        // 4. Generar la Galería del Harem
-        const haremContainer = document.getElementById('harem-gallery');
-        
-        if (waifusArray.length > 0) {
-            waifusArray.forEach(waifu => {
-                // Formatear nombre (ej: "tifa_lockhart" a "Tifa Lockhart")
-                let nombreLimpio = waifu.replace(/_/g, ' ');
-                // Poner la primera letra de cada palabra en mayúscula
-                nombreLimpio = nombreLimpio.replace(/\b\w/g, l => l.toUpperCase());
-                
-                let tarjeta = document.createElement('div');
-                tarjeta.className = "waifu-card";
-                tarjeta.innerHTML = `
-                    <div class="waifu-icon">💖</div>
-                    <p>${nombreLimpio}</p>
-                `;
-                haremContainer.appendChild(tarjeta);
-            });
-        } else {
-            // Mensaje si no tiene waifus
-            haremContainer.innerHTML = `
-                <div class="empty-harem">
-                    Aún no tienes a nadie en tu Harem.<br>Usa el comando /gacha en el bot para empezar a coleccionar.
+            document.getElementById('vip-badge').innerText = "✦ DIOS ABSOLUTO 🔞 ✦";
+            document.getElementById('vip-badge').style.color = "var(--vip)";
+            
+            // Mensaje de agradecimiento si ya pagó
+            promoContainer.innerHTML = `
+                <div class="promo-box" style="animation: none; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow);">
+                    <h3 style="color: var(--accent);">💖 Gracias por tu devoción</h3>
+                    <p style="font-size: 13px; color: #ccc;">Eres un usuario Premium. Kurumi te pertenece por completo. Disfruta de la IA sin límites.</p>
                 </div>
             `;
+        } else {
+            // El Upsell para los que NO son VIP
+            promoContainer.innerHTML = `
+                <div class="promo-box">
+                    <h3>⭐ DESBLOQUEA EL MODO VIP ⭐</h3>
+                    <ul>
+                        <li>🔞 <b>Modo Sin Censura:</b> Etiquetas premium liberadas (ahegao, tentacles, uncensored).</li>
+                        <li>🧠 <b>IA Infinita:</b> Chatea sin límites diarios.</li>
+                        <li>👑 <b>Prestigio:</b> Título de Inversor VIP permanente.</li>
+                    </ul>
+                    <button class="btn-buy" onclick="comprarVip()">PAGAR CON TELEGRAM STARS ⭐️</button>
+                </div>
+            `;
+        }
+
+        // Función de compra conectada con tu Bot
+        function comprarVip() {
+            // Hacer que el teléfono vibre
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+            
+            // Mostrar la alerta y cerrar la App para ir al pago
+            tg.showAlert("Serás redirigido al chat para procesar tu pago seguro con Telegram Stars. 😈\n\nSolo presiona 'Enviar' al comando que aparecerá.", function() {
+                // Al cerrar, le pedimos al usuario que mande el comando
+                tg.sendData("/comprarvip"); 
+                tg.close();
+            });
+        }
+
+        // Renderizar Galería Harem interactiva
+        const gallery = document.getElementById('gallery');
+        const waifusList = waifusRaw ? waifusRaw.split(',') : [];
+
+        if (waifusList.length > 0 && waifusList[0] !== "") {
+            waifusList.forEach(w => {
+                let name = w.replace(/_/g, ' ').toUpperCase();
+                let div = document.createElement('div');
+                div.className = 'waifu-item';
+                div.innerHTML = `<div class="emoji">⛓️</div><span>${name}</span>`;
+                
+                // Interactividad al tocar la waifu
+                div.onclick = () => {
+                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                    tg.showPopup({
+                        title: name,
+                        message: `Tienes a ${name} atada en tu sótano. 😈\n(Pronto podrás interactuar con ella)`,
+                        buttons: [{type: "close"}]
+                    });
+                };
+                gallery.appendChild(div);
+            });
+        } else {
+            gallery.innerHTML = '<div style="grid-column: span 4; text-align: center; color: #666; font-style: italic; padding: 20px;">Tu sótano está vacío... usa /gacha para conseguir esclavas.</div>';
         }
     </script>
 </body>
