@@ -1,1 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dominio de Kurumi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #161622;
+            --primary-red: #e62429;
+            --text-main: #ffffff;
+            --text-muted: #8b8b9e;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            padding-bottom: 80px; /* Espacio para el menú inferior */
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(180deg, rgba(230,36,41,0.2) 0%, var(--bg-dark) 100%);
+            padding: 30px 20px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(230,36,41,0.3);
+        }
+        .header h1 { font-size: 24px; color: var(--primary-red); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;}
+        .header p { color: var(--text-muted); font-size: 14px; }
+
+        /* CONTENEDOR DE SECCIONES */
+        .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* TARJETAS DE ESTADÍSTICAS */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card {
+            background-color: var(--bg-card);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #2a2a35;
+        }
+        .stat-card h3 { color: var(--text-muted); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;}
+        .stat-card .value { font-size: 22px; font-weight: bold; color: var(--primary-red); }
+
+        /* BOTONES DE ACCIÓN */
+        .btn-action {
+            display: block; width: 100%; background-color: var(--primary-red); color: white;
+            border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: bold;
+            margin-bottom: 15px; cursor: pointer; transition: transform 0.1s;
+        }
+        .btn-action:active { transform: scale(0.97); }
+        .btn-action.secondary { background-color: #2a2a35; color: var(--text-main); }
+
+        /* HAREM GRID */
+        .harem-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .waifu-card {
+            background-color: var(--bg-card); border-radius: 10px;
+            height: 120px; display: flex; align-items: center; justify-content: center;
+            border: 1px dashed #3a3a4d; color: var(--text-muted); font-size: 14px; flex-direction: column;
+        }
+        .waifu-card span { font-size: 24px; margin-bottom: 5px; }
+
+        /* NAVBAR INFERIOR */
+        .navbar {
+            position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--bg-card);
+            display: flex; justify-content: space-around; padding: 15px 0;
+            border-top: 1px solid #2a2a35;
+        }
+        .nav-item { color: var(--text-muted); text-align: center; font-size: 12px; cursor: pointer; flex: 1;}
+        .nav-item.active { color: var(--primary-red); font-weight: bold; }
+        .nav-item span { display: block; font-size: 20px; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 id="userName">Amo</h1>
+        <p>Bienvenido al Panel de Control 😈</p>
+    </div>
+
+    <div id="tab-perfil" class="tab-content active">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>💰 Monedas</h3>
+                <div class="value" id="valCoins">--</div>
+            </div>
+            <div class="stat-card">
+                <h3>💖 Afinidad</h3>
+                <div class="value" id="valAffinity">--%</div>
+            </div>
+        </div>
+        
+        <button class="btn-action secondary" onclick="sendDataToBot('action_daily')">🎁 Reclamar Daily (+100 M)</button>
+        <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 20px;">
+            Tu bot de confianza gestionando tus vicios.
+        </p>
+    </div>
+
+    <div id="tab-gacha" class="tab-content">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <span style="font-size: 60px; display: block; margin-bottom: 10px;">🎰</span>
+            <h2 style="color: var(--primary-red); margin-bottom: 10px;">Ruleta Legendaria</h2>
+            <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                Gasta 20 Monedas para invocar una Waifu o un video especial de tu colección. ¿Tienes suerte hoy?
+            </p>
+        </div>
+        <button class="btn-action" onclick="sendDataToBot('action_gacha')">Tirar Gacha (-20 M)</button>
+    </div>
+
+    <div id="tab-harem" class="tab-content">
+        <h3 style="margin-bottom: 15px; color: var(--primary-red);">Tus Propiedades</h3>
+        <div class="harem-grid">
+            <div class="waifu-card"><span>🔒</span>Vacío</div>
+            <div class="waifu-card"><span>🔒</span>Vacío</div>
+            <div class="waifu-card"><span>🔒</span>Vacío</div>
+            <div class="waifu-card"><span>🔒</span>Vacío</div>
+        </div>
+        <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 15px;">
+            Sigue usando el Gacha para desbloquear los espacios.
+        </p>
+    </div>
+
+    <div class="navbar">
+        <div class="nav-item active" onclick="switchTab('perfil', this)">
+            <span>👤</span>Perfil
+        </div>
+        <div class="nav-item" onclick="switchTab('gacha', this)">
+            <span>🎰</span>Gacha
+        </div>
+        <div class="nav-item" onclick="switchTab('harem', this)">
+            <span>📸</span>Harem
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Ocupa toda la pantalla
+        tg.ready();
+
+        // 1. Obtener nombre de Telegram
+        if (tg.initDataUnsafe.user) {
+            document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
+        }
+
+        // 2. Leer parámetros mágicos de la URL (Monedas y Afinidad que envía Python)
+        const urlParams = new URLSearchParams(window.location.search);
+        const coins = urlParams.get('coins') || '0';
+        const afinidad = urlParams.get('afinidad') || '0';
+        
+        document.getElementById('valCoins').innerText = coins;
+        document.getElementById('valAffinity').innerText = afinidad + "%";
+
+        // 3. Lógica para cambiar de pestañas
+        function switchTab(tabId, element) {
+            // Ocultar todos
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            // Mostrar el seleccionado
+            document.getElementById('tab-' + tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // 4. Lógica para enviar órdenes a Python y cerrar la app
+        function sendDataToBot(action) {
+            tg.sendData(action); // Envía "action_gacha" o "action_daily" a tu bot
+            tg.close(); // Cierra la ventanita suavemente
+        }
+    </script>
+</body>
+</html>
