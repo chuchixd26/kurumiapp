@@ -3,179 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dominio de Kurumi</title>
+    <title>KurumiApp Panel</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-dark: #0a0a0f;
-            --bg-card: #161622;
-            --primary-red: #e62429;
-            --text-main: #ffffff;
-            --text-muted: #8b8b9e;
+            --bg-color: #0f0f13;
+            --panel-bg: #1c1c24;
+            --primary-color: #e62e4d;
+            --text-color: #ffffff;
+            --text-muted: #a0a0b0;
+            --vip-color: #ffd700;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
-            padding-bottom: 80px; /* Espacio para el menú inferior */
         }
 
-        /* HEADER */
-        .header {
-            background: linear-gradient(180deg, rgba(230,36,41,0.2) 0%, var(--bg-dark) 100%);
-            padding: 30px 20px 20px;
+        header {
             text-align: center;
-            border-bottom: 1px solid rgba(230,36,41,0.3);
+            margin-bottom: 30px;
         }
-        .header h1 { font-size: 24px; color: var(--primary-red); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;}
-        .header p { color: var(--text-muted); font-size: 14px; }
 
-        /* CONTENEDOR DE SECCIONES */
-        .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h1 {
+            color: var(--primary-color);
+            margin: 0 0 5px 0;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
-        /* TARJETAS DE ESTADÍSTICAS */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        #vip-badge {
+            font-size: 14px;
+            font-weight: bold;
+            min-height: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
         .stat-card {
-            background-color: var(--bg-card);
+            background-color: var(--panel-bg);
+            border-radius: 15px;
             padding: 15px;
-            border-radius: 12px;
             text-align: center;
-            border: 1px solid #2a2a35;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(230, 46, 77, 0.1);
+            transition: transform 0.2s;
         }
-        .stat-card h3 { color: var(--text-muted); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;}
-        .stat-card .value { font-size: 22px; font-weight: bold; color: var(--primary-red); }
 
-        /* BOTONES DE ACCIÓN */
-        .btn-action {
-            display: block; width: 100%; background-color: var(--primary-red); color: white;
-            border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: bold;
-            margin-bottom: 15px; cursor: pointer; transition: transform 0.1s;
+        .stat-card:active {
+            transform: scale(0.95);
         }
-        .btn-action:active { transform: scale(0.97); }
-        .btn-action.secondary { background-color: #2a2a35; color: var(--text-main); }
 
-        /* HAREM GRID */
-        .harem-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .stat-card.full-width {
+            grid-column: span 2;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card p {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .harem-section h2 {
+            font-size: 18px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--panel-bg);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .harem-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
         .waifu-card {
-            background-color: var(--bg-card); border-radius: 10px;
-            height: 120px; display: flex; align-items: center; justify-content: center;
-            border: 1px dashed #3a3a4d; color: var(--text-muted); font-size: 14px; flex-direction: column;
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .waifu-card span { font-size: 24px; margin-bottom: 5px; }
 
-        /* NAVBAR INFERIOR */
-        .navbar {
-            position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--bg-card);
-            display: flex; justify-content: space-around; padding: 15px 0;
-            border-top: 1px solid #2a2a35;
+        .waifu-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
         }
-        .nav-item { color: var(--text-muted); text-align: center; font-size: 12px; cursor: pointer; flex: 1;}
-        .nav-item.active { color: var(--primary-red); font-weight: bold; }
-        .nav-item span { display: block; font-size: 20px; margin-bottom: 4px; }
+
+        .waifu-card p {
+            margin: 0;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-color);
+            word-break: break-word;
+        }
+
+        .empty-harem {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 20px;
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1 id="userName">Amo</h1>
-        <p>Bienvenido al Panel de Control 😈</p>
+    <header>
+        <h1>KurumiApp 😈</h1>
+        <div id="vip-badge"></div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card full-width">
+            <h3>👑 Rango Actual</h3>
+            <p id="titulo-display">Cargando...</p>
+        </div>
+        <div class="stat-card">
+            <h3>💰 Monedas</h3>
+            <p id="monedas-display">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>💖 Afinidad</h3>
+            <p id="afinidad-display">0%</p>
+        </div>
     </div>
 
-    <div id="tab-perfil" class="tab-content active">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>💰 Monedas</h3>
-                <div class="value" id="valCoins">--</div>
+    <section class="harem-section">
+        <h2>📸 Tu Harem Privado</h2>
+        <div id="harem-gallery" class="harem-gallery">
             </div>
-            <div class="stat-card">
-                <h3>💖 Afinidad</h3>
-                <div class="value" id="valAffinity">--%</div>
-            </div>
-        </div>
-        
-        <button class="btn-action secondary" onclick="sendDataToBot('action_daily')">🎁 Reclamar Daily (+100 M)</button>
-        <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 20px;">
-            Tu bot de confianza gestionando tus vicios.
-        </p>
-    </div>
-
-    <div id="tab-gacha" class="tab-content">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <span style="font-size: 60px; display: block; margin-bottom: 10px;">🎰</span>
-            <h2 style="color: var(--primary-red); margin-bottom: 10px;">Ruleta Legendaria</h2>
-            <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
-                Gasta 20 Monedas para invocar una Waifu o un video especial de tu colección. ¿Tienes suerte hoy?
-            </p>
-        </div>
-        <button class="btn-action" onclick="sendDataToBot('action_gacha')">Tirar Gacha (-20 M)</button>
-    </div>
-
-    <div id="tab-harem" class="tab-content">
-        <h3 style="margin-bottom: 15px; color: var(--primary-red);">Tus Propiedades</h3>
-        <div class="harem-grid">
-            <div class="waifu-card"><span>🔒</span>Vacío</div>
-            <div class="waifu-card"><span>🔒</span>Vacío</div>
-            <div class="waifu-card"><span>🔒</span>Vacío</div>
-            <div class="waifu-card"><span>🔒</span>Vacío</div>
-        </div>
-        <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 15px;">
-            Sigue usando el Gacha para desbloquear los espacios.
-        </p>
-    </div>
-
-    <div class="navbar">
-        <div class="nav-item active" onclick="switchTab('perfil', this)">
-            <span>👤</span>Perfil
-        </div>
-        <div class="nav-item" onclick="switchTab('gacha', this)">
-            <span>🎰</span>Gacha
-        </div>
-        <div class="nav-item" onclick="switchTab('harem', this)">
-            <span>📸</span>Harem
-        </div>
-    </div>
+    </section>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Ocupa toda la pantalla
-        tg.ready();
+        // 1. Expandimos la App para que ocupe toda la pantalla en Telegram
+        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.ready();
 
-        // 1. Obtener nombre de Telegram
-        if (tg.initDataUnsafe.user) {
-            document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
-        }
-
-        // 2. Leer parámetros mágicos de la URL (Monedas y Afinidad que envía Python)
+        // 2. Extraemos los parámetros de la URL enviados por bot.py
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Asignamos valores por defecto en caso de que algo llegue vacío
         const coins = urlParams.get('coins') || '0';
         const afinidad = urlParams.get('afinidad') || '0';
-        
-        document.getElementById('valCoins').innerText = coins;
-        document.getElementById('valAffinity').innerText = afinidad + "%";
+        const titulo = urlParams.get('titulo') ? decodeURIComponent(urlParams.get('titulo')) : 'Desconocido';
+        const isVip = urlParams.get('vip') === '1';
+        const waifusRaw = urlParams.get('waifus') ? decodeURIComponent(urlParams.get('waifus')) : '';
 
-        // 3. Lógica para cambiar de pestañas
-        function switchTab(tabId, element) {
-            // Ocultar todos
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            // Mostrar el seleccionado
-            document.getElementById('tab-' + tabId).classList.add('active');
-            element.classList.add('active');
+        // Convertimos el string separado por comas en un Array (lista)
+        const waifusArray = waifusRaw ? waifusRaw.split(',') : [];
+
+        // 3. Renderizamos la información en el HTML
+        document.getElementById('monedas-display').innerText = parseInt(coins).toLocaleString();
+        document.getElementById('afinidad-display').innerText = afinidad + '%';
+        document.getElementById('titulo-display').innerText = titulo;
+
+        // Mostrar Medalla VIP
+        if (isVip) {
+            const badge = document.getElementById('vip-badge');
+            badge.innerText = "🌟 USUARIO PREMIUM";
+            badge.style.color = "var(--vip-color)";
+            badge.style.textShadow = "0 0 10px rgba(255, 215, 0, 0.5)";
         }
 
-        // 4. Lógica para enviar órdenes a Python y cerrar la app
-        function sendDataToBot(action) {
-            tg.sendData(action); // Envía "action_gacha" o "action_daily" a tu bot
-            tg.close(); // Cierra la ventanita suavemente
-        }
-
+        // 4. Generar la Galería del Harem
+        const haremContainer = document.getElementById('harem-gallery');
         
+        if (waifusArray.length > 0) {
+            waifusArray.forEach(waifu => {
+                // Formatear nombre (ej: "tifa_lockhart" a "Tifa Lockhart")
+                let nombreLimpio = waifu.replace(/_/g, ' ');
+                // Poner la primera letra de cada palabra en mayúscula
+                nombreLimpio = nombreLimpio.replace(/\b\w/g, l => l.toUpperCase());
+                
+                let tarjeta = document.createElement('div');
+                tarjeta.className = "waifu-card";
+                tarjeta.innerHTML = `
+                    <div class="waifu-icon">💖</div>
+                    <p>${nombreLimpio}</p>
+                `;
+                haremContainer.appendChild(tarjeta);
+            });
+        } else {
+            // Mensaje si no tiene waifus
+            haremContainer.innerHTML = `
+                <div class="empty-harem">
+                    Aún no tienes a nadie en tu Harem.<br>Usa el comando /gacha en el bot para empezar a coleccionar.
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
