@@ -271,13 +271,9 @@
 
         // Función de compra conectada con tu Bot
         function comprarVip() {
-            // Hacer que el teléfono vibre
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
             
-            // Mostrar la alerta y cerrar la App para ir al pago
-            tg.showAlert("Serás redirigido al chat para procesar tu pago seguro con Telegram Stars. 😈\n\nSolo presiona 'Enviar' al comando que aparecerá.", function() {
-                // Al cerrar, le pedimos al usuario que mande el comando
-                tg.sendData("/comprarvip"); 
+            tg.showAlert("Para comprar tu suscripción VIP y apoyar al creador, por favor escribe el comando /comprarvip en el chat del bot. 😈\n\nEl panel se cerrará ahora para que procedas.", function() {
                 tg.close();
             });
         }
