@@ -37,6 +37,7 @@
         }
 
         h1 { margin: 0; font-size: 24px; letter-spacing: 2px; color: var(--accent); text-shadow: 0 0 8px var(--accent-glow); }
+        .auth-status { font-size: 12px; color: #a8a8a8; margin-top: 5px; font-style: italic; }
         #vip-badge { font-weight: bold; margin-top: 5px; font-size: 12px; height: 15px; }
 
         .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
@@ -75,6 +76,7 @@
 
     <header>
         <h1>KURUMI H-PANEL 😈</h1>
+        <div class="auth-status" id="auth-status">Verificando credenciales...</div>
         <div id="vip-badge"></div>
     </header>
 
@@ -106,26 +108,44 @@
         tg.expand();
         tg.ready();
 
-        // AQUÍ ESTÁ LA MAGIA: LEEMOS EXACTAMENTE LO QUE ENVÍA PYTHON
-        const params = new URLSearchParams(window.location.search);
-        const coins = params.get('money') || '0';
-        const afinidad = parseInt(params.get('love')) || 0;
+        // 1. SISTEMA DE LOGIN NATIVO DE TELEGRAM
+        const user = tg.initDataUnsafe?.user;
+        const authStatus = document.getElementById('auth-status');
+        if (user) {
+            authStatus.innerText = `🟢 Autenticado como: ${user.first_name}`;
+            authStatus.style.color = "#00ffcc";
+        } else {
+            authStatus.innerText = `🔴 Sesión Anónima`;
+            authStatus.style.color = "#ff3333";
+        }
+
+        // 2. EXTRACTOR DE VARIABLES ANTI-SECUESTRO
+        // Tomamos el string crudo y lo separamos manualmente para evadir la inyección de Telegram
+        let rawData = window.location.hash ? window.location.hash.substring(1) : window.location.search.substring(1);
+        let myParams = {};
         
-        // Si no encuentra la variable "rank", usa "Solitario" (Esto indicaría que Python falló)
-        const titulo = params.get('rank') ? decodeURIComponent(params.get('rank')) : 'Solitario';
-        
-        const isVip = params.get('isvip') === '1';
-        const waifusRaw = params.get('waifus') ? decodeURIComponent(params.get('waifus')) : '';
+        rawData.split('&').forEach(param => {
+            let parts = param.split('=');
+            if(parts.length === 2) {
+                // Guardamos solo nuestras variables limpias
+                myParams[parts[0]] = decodeURIComponent(parts[1]);
+            }
+        });
+
+        // 3. ASIGNACIÓN DE VARIABLES SEGURA
+        const coins = myParams['money'] || '0';
+        const afinidad = parseInt(myParams['love']) || 0;
+        const titulo = myParams['rank'] || 'Solitario'; // ¡AQUÍ ESTÁ LA MAGIA!
+        const isVip = myParams['isvip'] === '1';
+        const waifusRaw = myParams['waifus'] || '';
 
         // Renderizar Stats
         document.getElementById('monedas').innerText = parseInt(coins).toLocaleString();
         document.getElementById('titulo').innerText = titulo;
         
-        // Renderizar Barra de Afinidad
         document.getElementById('afinidad-text').innerText = afinidad + '%';
         setTimeout(() => { document.getElementById('afinidad-bar').style.width = afinidad + '%'; }, 300);
 
-        // Lógica de Renderizado VIP
         const promoContainer = document.getElementById('promo-container');
         
         if (isVip) {
@@ -153,13 +173,12 @@
 
         function comprarVip() {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
-            tg.showAlert("Serás redirigido al chat para procesar tu pago seguro con Telegram Stars. 😈\n\nSolo presiona 'Enviar' al mensaje que aparecerá.", function() {
+            tg.showAlert("Serás redirigido al chat para procesar tu pago seguro con Telegram Stars. 😈", function() {
                 tg.sendData("/comprarvip"); 
                 tg.close();
             });
         }
 
-        // Renderizar Galería Harem
         const gallery = document.getElementById('gallery');
         const waifusList = waifusRaw ? waifusRaw.split(',') : [];
 
