@@ -119,25 +119,15 @@
             authStatus.style.color = "#ff3333";
         }
 
-        // 2. EXTRACTOR DE VARIABLES ANTI-SECUESTRO
-        // Tomamos el string crudo y lo separamos manualmente para evadir la inyección de Telegram
-        let rawData = window.location.hash ? window.location.hash.substring(1) : window.location.search.substring(1);
-        let myParams = {};
-        
-        rawData.split('&').forEach(param => {
-            let parts = param.split('=');
-            if(parts.length === 2) {
-                // Guardamos solo nuestras variables limpias
-                myParams[parts[0]] = decodeURIComponent(parts[1]);
-            }
-        });
+       // 2. LECTURA PURA DE VARIABLES (Ignorando el hash de Telegram)
+        const params = new URLSearchParams(window.location.search);
 
         // 3. ASIGNACIÓN DE VARIABLES SEGURA
-        const coins = myParams['money'] || '0';
-        const afinidad = parseInt(myParams['love']) || 0;
-        const titulo = myParams['rank'] || 'Solitario'; // ¡AQUÍ ESTÁ LA MAGIA!
-        const isVip = myParams['isvip'] === '1';
-        const waifusRaw = myParams['waifus'] || '';
+        const coins = params.get('money') || '0';
+        const afinidad = parseInt(params.get('love')) || 0;
+        const titulo = params.get('rank') ? decodeURIComponent(params.get('rank')) : 'Solitario';
+        const isVip = params.get('isvip') === '1';
+        const waifusRaw = params.get('waifus') ? decodeURIComponent(params.get('waifus')) : '';
 
         // Renderizar Stats
         document.getElementById('monedas').innerText = parseInt(coins).toLocaleString();
