@@ -108,7 +108,7 @@
         tg.expand();
         tg.ready();
 
-        // 1. SISTEMA DE LOGIN NATIVO DE TELEGRAM
+        // 1. LOGIN NATIVO DE TELEGRAM
         const user = tg.initDataUnsafe?.user;
         const authStatus = document.getElementById('auth-status');
         if (user) {
@@ -119,17 +119,30 @@
             authStatus.style.color = "#ff3333";
         }
 
-       // 2. LECTURA PURA DE VARIABLES (Ignorando el hash de Telegram)
-        const params = new URLSearchParams(window.location.search);
+        // 2. EXTRACTOR HÍBRIDO ABSOLUTO (Lee todo, ignora la basura)
+        let queryString = window.location.search.substring(1);
+        let hashString = window.location.hash.substring(1);
+        
+        // Juntamos el 'search' y el 'hash' para que no escape ninguna variable
+        let fullParams = queryString + "&" + hashString;
+        const params = new URLSearchParams(fullParams);
 
-        // 3. ASIGNACIÓN DE VARIABLES SEGURA
+        // 3. ASIGNACIÓN SEGURA
         const coins = params.get('money') || '0';
         const afinidad = parseInt(params.get('love')) || 0;
         const titulo = params.get('rank') ? decodeURIComponent(params.get('rank')) : 'Solitario';
         const isVip = params.get('isvip') === '1';
         const waifusRaw = params.get('waifus') ? decodeURIComponent(params.get('waifus')) : '';
 
-        // Renderizar Stats
+        // --- MODO DEPURACIÓN VISUAL ---
+        // Esto creará un texto rojo abajo de todo para que veas qué URL llegó realmente
+        let debugDiv = document.createElement('div');
+        debugDiv.style = "color: red; font-size: 10px; word-break: break-all; margin-top: 20px;";
+        debugDiv.innerText = "URL RECIBIDA: " + window.location.href;
+        document.body.appendChild(debugDiv);
+        // ------------------------------
+
+        // 4. RENDERIZADO EN PANTALLA
         document.getElementById('monedas').innerText = parseInt(coins).toLocaleString();
         document.getElementById('titulo').innerText = titulo;
         
@@ -137,7 +150,6 @@
         setTimeout(() => { document.getElementById('afinidad-bar').style.width = afinidad + '%'; }, 300);
 
         const promoContainer = document.getElementById('promo-container');
-        
         if (isVip) {
             document.getElementById('vip-badge').innerText = "✦ MIEMBRO VIP ACTIVO 🔞 ✦";
             document.getElementById('vip-badge').style.color = "var(--vip)";
@@ -163,7 +175,7 @@
 
         function comprarVip() {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
-            tg.showAlert("Serás redirigido al chat para procesar tu pago seguro con Telegram Stars. 😈", function() {
+            tg.showAlert("Serás redirigido al chat para procesar tu pago. 😈", function() {
                 tg.sendData("/comprarvip"); 
                 tg.close();
             });
