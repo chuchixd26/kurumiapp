@@ -167,9 +167,14 @@
             });
         }
 
-        // 4. CARGAR LAS IMÁGENES DE GELBOORU
+        // 4. CARGAR LAS IMÁGENES DE GELBOORU (Autenticado y Blindado)
         const gallery = document.getElementById('gallery');
         const waifusList = waifusRaw ? waifusRaw.split(',') : [];
+
+        // --- TUS LLAVES DE GELBOORU INTEGRADAS ---
+        const gelUserId = "1938514";  
+        const gelApiKey = "1fc105441540d4f615ca8f00e66b3980129de3c3506fe498f7cedfcebdc21dfe890ceb1baf88c1788f47912a75339a59d4af10984848999aec3d72aed7665348";  
+        // ------------------------------
 
         if (waifusList.length > 0 && waifusList[0] !== "") {
             waifusList.forEach(w => {
@@ -178,25 +183,25 @@
                 
                 let div = document.createElement('div');
                 div.className = 'waifu-item';
-                // Mostramos un relojito de arena mientras descarga la foto
                 div.innerHTML = `<div class="emoji" style="font-size:18px;">⏳</div><span>${name}</span>`;
                 gallery.appendChild(div);
                 
-                // Conectamos con Gelbooru directamente
-                fetch(`https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1&tags=${searchTag}+rating:explicit`)
+                // Armamos la URL de Gelbooru AUTENTICADA
+                let apiUrl = `https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1&tags=${searchTag}+rating:explicit`;
+                apiUrl += `&user_id=${gelUserId}&api_key=${gelApiKey}`;
+
+                // Conectamos con Gelbooru usando tus credenciales
+                fetch(apiUrl)
                     .then(response => response.json())
                     .then(data => {
                         if (data.post && data.post.length > 0) {
-                            // Si encuentra imagen, pone la miniatura
                             let imgUrl = data.post[0].preview_url || data.post[0].file_url;
                             div.innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.4);"><span>${name}</span>`;
                         } else {
-                            // Si ese personaje no tiene fotos, pone las cadenas
                             div.innerHTML = `<div class="emoji">⛓️</div><span>${name}</span>`;
                         }
                     })
                     .catch(err => {
-                        // Si falla la red, pone las cadenas
                         div.innerHTML = `<div class="emoji">⛓️</div><span>${name}</span>`;
                     });
                 
