@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer">
     <title>Kurumi H-Panel</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -64,7 +65,7 @@
 
         .harem-title { font-size: 16px; color: var(--accent); margin: 0 0 15px 0; text-transform: uppercase; font-weight: bold; border-bottom: 1px solid var(--accent); padding-bottom: 5px; }
         .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
-        .waifu-item { background: #230235; border-radius: 10px; padding: 15px 5px; text-align: center; border: 1px solid rgba(255, 0, 127, 0.2); transition: all 0.2s; }
+        .waifu-item { background: #230235; border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255, 0, 127, 0.2); transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 110px;}
         .waifu-item:active { background: var(--accent); transform: scale(0.95); }
         .waifu-item span { font-size: 10px; font-weight: bold; display: block; margin-top: 8px; }
         .emoji { font-size: 28px; }
@@ -100,7 +101,7 @@
 
     <div id="promo-container"></div>
 
-    <div class="harem-title">📸 Tu Sótano (Harem)</div>
+    <div class="harem-title">📸 Tu Colección Privada</div>
     <div id="gallery" class="gallery"></div>
 
     <script>
@@ -119,30 +120,15 @@
             authStatus.style.color = "#ff3333";
         }
 
-        // 2. EXTRACTOR HÍBRIDO ABSOLUTO (Lee todo, ignora la basura)
-        let queryString = window.location.search.substring(1);
-        let hashString = window.location.hash.substring(1);
-        
-        // Juntamos el 'search' y el 'hash' para que no escape ninguna variable
-        let fullParams = queryString + "&" + hashString;
-        const params = new URLSearchParams(fullParams);
-
-        // 3. ASIGNACIÓN SEGURA
+        // 2. EXTRACTOR DE DATOS
+        const params = new URLSearchParams(window.location.search);
         const coins = params.get('money') || '0';
         const afinidad = parseInt(params.get('love')) || 0;
         const titulo = params.get('rank') ? decodeURIComponent(params.get('rank')) : 'Solitario';
         const isVip = params.get('isvip') === '1';
         const waifusRaw = params.get('waifus') ? decodeURIComponent(params.get('waifus')) : '';
 
-        // --- MODO DEPURACIÓN VISUAL ---
-        // Esto creará un texto rojo abajo de todo para que veas qué URL llegó realmente
-        let debugDiv = document.createElement('div');
-        debugDiv.style = "color: red; font-size: 10px; word-break: break-all; margin-top: 20px;";
-        debugDiv.innerText = "URL RECIBIDA: " + window.location.href;
-        document.body.appendChild(debugDiv);
-        // ------------------------------
-
-        // 4. RENDERIZADO EN PANTALLA
+        // 3. RENDERIZAR ESTADÍSTICAS
         document.getElementById('monedas').innerText = parseInt(coins).toLocaleString();
         document.getElementById('titulo').innerText = titulo;
         
@@ -181,6 +167,7 @@
             });
         }
 
+        // 4. CARGAR LAS IMÁGENES DE GELBOORU
         const gallery = document.getElementById('gallery');
         const waifusList = waifusRaw ? waifusRaw.split(',') : [];
 
@@ -191,31 +178,35 @@
                 
                 let div = document.createElement('div');
                 div.className = 'waifu-item';
-                div.innerHTML = `<div class="emoji" style="font-size:15px; margin: 20px 0;">⏳</div><span>${name}</span>`;
+                // Mostramos un relojito de arena mientras descarga la foto
+                div.innerHTML = `<div class="emoji" style="font-size:18px;">⏳</div><span>${name}</span>`;
+                gallery.appendChild(div);
                 
-                // Conectamos con Gelbooru directamente desde el panel
+                // Conectamos con Gelbooru directamente
                 fetch(`https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1&tags=${searchTag}+rating:explicit`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.post && data.post.length > 0) {
+                            // Si encuentra imagen, pone la miniatura
                             let imgUrl = data.post[0].preview_url || data.post[0].file_url;
                             div.innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.4);"><span>${name}</span>`;
                         } else {
+                            // Si ese personaje no tiene fotos, pone las cadenas
                             div.innerHTML = `<div class="emoji">⛓️</div><span>${name}</span>`;
                         }
                     })
                     .catch(err => {
+                        // Si falla la red, pone las cadenas
                         div.innerHTML = `<div class="emoji">⛓️</div><span>${name}</span>`;
                     });
                 
                 div.onclick = () => {
                     if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                    tg.showPopup({ title: name, message: `Tienes a ${name} atada en tu sótano. 😈`, buttons: [{type: "close"}] });
+                    tg.showPopup({ title: name, message: `Tienes a ${name} en tu colección. 😈`, buttons: [{type: "close"}] });
                 };
-                gallery.appendChild(div);
             });
         } else {
-            gallery.innerHTML = '<div style="grid-column: span 4; text-align: center; color: #666; font-style: italic; padding: 20px;">Tu sótano está vacío... usa /gacha para conseguir esclavas.</div>';
+            gallery.innerHTML = '<div style="grid-column: span 4; text-align: center; color: #666; font-style: italic; padding: 20px;">Tu colección está vacía... usa /gacha para expandirla.</div>';
         }
     </script>
 </body>
