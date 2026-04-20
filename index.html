@@ -186,10 +186,27 @@
 
         if (waifusList.length > 0 && waifusList[0] !== "") {
             waifusList.forEach(w => {
+                let searchTag = w.trim().toLowerCase();
                 let name = w.replace(/_/g, ' ').toUpperCase();
+                
                 let div = document.createElement('div');
                 div.className = 'waifu-item';
-                div.innerHTML = `<div class="emoji">⛓️</div><span>${name}</span>`;
+                div.innerHTML = `<div class="emoji" style="font-size:15px; margin: 20px 0;">⏳</div><span>${name}</span>`;
+                
+                // Conectamos con Gelbooru directamente desde el panel
+                fetch(`https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1&tags=${searchTag}+rating:explicit`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.post && data.post.length > 0) {
+                            let imgUrl = data.post[0].preview_url || data.post[0].file_url;
+                            div.innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255, 0, 127, 0.4);"><span>${name}</span>`;
+                        } else {
+                            div.innerHTML = `<div class="emoji">⛓️</div><span>${name}</span>`;
+                        }
+                    })
+                    .catch(err => {
+                        div.innerHTML = `<div class="emoji">⛓️</div><span>${name}</span>`;
+                    });
                 
                 div.onclick = () => {
                     if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
